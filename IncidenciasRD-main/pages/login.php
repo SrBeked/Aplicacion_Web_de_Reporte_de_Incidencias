@@ -51,7 +51,8 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     <button type="submit" class="w-full rounded-2xl bg-indigo-600 text-white font-semibold px-4 py-2 hover:shadow">Entrar</button>
   </form>
 
-  <p class="mt-4 text-sm">No tienes cuenta? <a href="register.php" class="text-indigo-600 font-semibold">Regstrate</a></p>
+  <p class="mt-4 text-sm">No tienes cuenta? <a href="register.php" class="text-indigo-600 font-semibold">Registrate</a></p>
 </main>
 
 <?php include $prefix . '/partials/footer.php'; ?>
+
