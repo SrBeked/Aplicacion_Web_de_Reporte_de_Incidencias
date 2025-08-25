@@ -3,8 +3,8 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>IncidenciasRD – DEMO</title>
-  <link rel="icon" href="<?= $prefix ?>/assets/img/logo.svg">
+  <title>Mapa de Incidencias</title>
+  <link rel="icon" href="<?= $prefix ?>/assets/img/logo.svg?2">
   <script src="https://cdn.tailwindcss.com"></script>
   <script>tailwind.config = { theme: { extend: { borderRadius: { '2xl': '1rem' }}} };</script>
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
