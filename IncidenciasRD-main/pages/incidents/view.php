@@ -5,8 +5,6 @@ require_once __DIR__ . '/../../db.php';
 
 $id = isset($_GET['id']) ? (int)$_GET['id'] : 0;
 $inc = null;
-$save_ok = false;
-$errors = [];
 
 if ($id > 0) {
   $stmt = $conn->prepare("SELECT id, titulo, descripcion, tipo, provincia, municipio, barrio, latitud, longitud, muertos, heridos, perdida_estimada, link_redes, foto, fecha FROM incidencias WHERE id=? LIMIT 1");
@@ -15,30 +13,6 @@ if ($id > 0) {
   $res = $stmt->get_result();
   $inc = $res->fetch_assoc();
   $stmt->close();
-}
-
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && $inc) {
-  $c_muertos = isset($_POST['c_muertos']) && $_POST['c_muertos'] !== '' ? (int)$_POST['c_muertos'] : null;
-  $c_heridos = isset($_POST['c_heridos']) && $_POST['c_heridos'] !== '' ? (int)$_POST['c_heridos'] : null;
-  $c_provincia = isset($_POST['c_provincia']) && trim($_POST['c_provincia']) !== '' ? trim($_POST['c_provincia']) : null;
-  $c_perdida = isset($_POST['c_perdida']) && $_POST['c_perdida'] !== '' ? (float)$_POST['c_perdida'] : null;
-  if ($c_muertos === null && $c_heridos === null && $c_provincia === null && $c_perdida === null) $errors[] = 'Indica al menos un campo a corregir.';
-  if (!$errors) {
-    $usuario_id = isset($_SESSION['usuario_id']) ? (int)$_SESSION['usuario_id'] : null;
-    $stmt = $conn->prepare("INSERT INTO correcciones (incidencia_id, muertos, heridos, provincia, perdida_estimada, usuario_id, creada_en) VALUES (?, ?, ?, ?, ?, ?, NOW())");
-    $stmt->bind_param(
-      "iiisdi",
-      $id,
-      $c_muertos,
-      $c_heridos,
-      $c_provincia,
-      $c_perdida,
-      $usuario_id
-    );
-    $stmt->execute();
-    $stmt->close();
-    $save_ok = true;
-  }
 }
 
 include $prefix . '/partials/head.php';
@@ -90,17 +64,6 @@ if (!$inc): ?>
     </div>
 
     <aside class="space-y-4">
-      <?php if ($save_ok): ?>
-        <div class="rounded-2xl ring-1 ring-emerald-200 bg-emerald-50 text-emerald-700 p-4 text-sm">Corrección enviada correctamente.</div>
-      <?php endif; ?>
-      <?php if (!empty($errors)): ?>
-        <div class="rounded-2xl ring-1 ring-red-200 bg-red-50 text-red-700 p-4 text-sm">
-          <ul class="list-disc pl-5">
-            <?php foreach ($errors as $e): ?><li><?= htmlspecialchars($e) ?></li><?php endforeach; ?>
-          </ul>
-        </div>
-      <?php endif; ?>
-
       <div class="rounded-2xl ring-1 ring-slate-200 bg-white p-4">
         <h2 class="font-semibold mb-2">Detalles</h2>
         <dl class="text-sm grid grid-cols-3 gap-2">
@@ -110,31 +73,6 @@ if (!$inc): ?>
           <dt class="text-slate-500">Coordenadas</dt><dd class="col-span-2"><?= $inc['latitud'] && $inc['longitud'] ? htmlspecialchars($inc['latitud'] . ', ' . $inc['longitud']) : 'N/D' ?></dd>
           <dt class="text-slate-500">Ubicación</dt><dd class="col-span-2"><?= htmlspecialchars(trim(($inc['barrio'] ? $inc['barrio'] . ', ' : '') . ($inc['municipio'] ? $inc['municipio'] . ', ' : '') . $inc['provincia'], ', ')) ?></dd>
         </dl>
-      </div>
-
-      <div class="rounded-2xl ring-1 ring-slate-200 bg-white p-4">
-        <h2 class="font-semibold mb-2">Correcciones</h2>
-        <form class="space-y-3" method="post">
-          <div class="grid grid-cols-2 gap-3">
-            <div>
-              <label class="block text-xs text-slate-500">Muertos</label>
-              <input name="c_muertos" type="number" min="0" class="mt-1 w-full rounded-xl ring-1 ring-slate-300 px-3 py-2" value="<?= isset($_POST['c_muertos']) ? htmlspecialchars($_POST['c_muertos']) : '' ?>" />
-            </div>
-            <div>
-              <label class="block text-xs text-slate-500">Heridos</label>
-              <input name="c_heridos" type="number" min="0" class="mt-1 w-full rounded-xl ring-1 ring-slate-300 px-3 py-2" value="<?= isset($_POST['c_heridos']) ? htmlspecialchars($_POST['c_heridos']) : '' ?>" />
-            </div>
-          </div>
-          <div>
-            <label class="block text-xs text-slate-500">Provincia</label>
-            <input name="c_provincia" type="text" class="mt-1 w-full rounded-xl ring-1 ring-slate-300 px-3 py-2" value="<?= isset($_POST['c_provincia']) ? htmlspecialchars($_POST['c_provincia']) : '' ?>" />
-          </div>
-          <div>
-            <label class="block text-xs text-slate-500">Pérdida estimada</label>
-            <input name="c_perdida" type="number" min="0" step="0.01" class="mt-1 w-full rounded-xl ring-1 ring-slate-300 px-3 py-2" value="<?= isset($_POST['c_perdida']) ? htmlspecialchars($_POST['c_perdida']) : '' ?>" />
-          </div>
-          <button type="submit" class="w-full rounded-2xl bg-indigo-600 text-white px-4 py-2 text-sm font-semibold">Enviar corrección</button>
-        </form>
       </div>
     </aside>
   </section>
